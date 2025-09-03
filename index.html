@@ -1,0 +1,568 @@
+<!-- =====================================================================
+      index.html – SC Magdeburg Handball Tracker
+      ------------------------------------------------------------------ -->
+<!DOCTYPE html>
+<html lang="de" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8"/>
+
+    <!-- Pfad ist relativ, daher funktioniert die URL sowohl lokal als auch auf GitHub Pages  -->
+    <link href="./favicon.ico" rel="icon" type="image/x-icon"/>
+
+    <!--  =========================================
+         Responsives Viewport-Meta
+         – verhindert zusätzlich das Zoomen auf Smartphones
+         ========================================== -->
+    <meta
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+            name="viewport"
+    />
+
+    <title>SC Magdeburg Handball Tracker v2</title>
+
+    <!-- Zentrales Stylesheet -->
+    <link href="./src/css/styles.css" rel="stylesheet"/>
+
+    <!--  Progressive-Web-App-Meta ------------------------------------ -->
+    <link rel="manifest" href="./manifest.json">
+    <meta content="yes" name="mobile-web-app-capable"/>
+    <meta content="yes" name="apple-mobile-web-app-capable"/>
+    <meta
+            content="black-translucent"
+            name="apple-mobile-web-app-status-bar-style"
+    />
+    <meta content="Handball Tracker" name="apple-mobile-web-app-title"/>
+    <meta content="#006521" name="theme-color"/>
+
+    <!-- ===============================================================
+     SheetJS-Loader – versucht mehrere lokale Pfade, dann CDN
+     und schaltet den Export-Button erst bei erfolgreichem Load frei.
+     ============================================================== -->
+    <script>
+        (function loadXLSX() {
+            /* ----------------------------------------------------------
+               Helper: Export-Button freischalten, sobald XLSX verfügbar ist
+               ---------------------------------------------------------- */
+            function enableExportBtn() {
+                const btn = document.getElementById("export-btn");
+                if (btn) btn.disabled = false;
+            }
+
+            /* ----------------------------------------------------------
+               Helper: prüft, ob das globale XLSX korrekt geladen wurde
+               ---------------------------------------------------------- */
+            function isXlsxReady() {
+                return !!(window.XLSX && window.XLSX.utils && typeof window.XLSX.utils.json_to_sheet === "function");
+            }
+
+            /* ----------------------------------------------------------
+               Helper: Script-Tag dynamisch laden (Promise-basiert)
+               ---------------------------------------------------------- */
+            function loadScript(src) {
+                return new Promise((resolve, reject) => {
+                    const s = document.createElement("script");
+                    s.src = src;
+                    s.onload = () => resolve({ok: true, src});
+                    s.onerror = () => reject(new Error("FAILED: " + src));
+                    document.head.appendChild(s);
+                });
+            }
+
+            /* ----------------------------------------------------------
+               1) Kandidaten-Liste lokaler Pfade (erst diese probieren)
+               –> Lege die Datei xlsx.full.min.js in einen dieser Ordner.
+               ---------------------------------------------------------- */
+            const localCandidates = [
+                "./vendor/xlsx.full.min.js",
+            ];
+
+            /* ----------------------------------------------------------
+               2) CDN-Fallback (wenn alle lokalen Pfade fehlschlagen)
+               ---------------------------------------------------------- */
+            const cdnUrl = "https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js";
+
+            /* ----------------------------------------------------------
+               3) Kaskadierte Lade-Logik:
+                  – gehe die lokalen Pfade der Reihe nach durch;
+                  – wenn keiner klappt, versuche das CDN;
+                  – bei Erfolg: isXlsxReady() prüfen und Export freischalten.
+               ---------------------------------------------------------- */
+            (async () => {
+                let loaded = false;
+
+                // a) Lokale Kandidaten seriell testen
+                for (const src of localCandidates) {
+                    try {
+                        console.info("[XLSX] Versuche lokalen Pfad:", src);
+                        await loadScript(src);
+                        if (isXlsxReady()) {
+                            console.info("[XLSX] OK (lokal):", src);
+                            loaded = true;
+                            break;
+                        } else {
+                            console.warn("[XLSX] Script geladen, aber XLSX nicht verfügbar:", src);
+                        }
+                    } catch (e) {
+                        console.warn("[XLSX] Lokaler Load fehlgeschlagen:", src);
+                    }
+                }
+
+                // b) Falls lokal nicht erfolgreich - CDN
+                if (!loaded) {
+                    try {
+                        console.warn("[XLSX] Wechsle auf CDN:", cdnUrl);
+                        await loadScript(cdnUrl);
+                        if (isXlsxReady()) {
+                            console.info("[XLSX] OK (CDN).");
+                            loaded = true;
+                        } else {
+                            console.error("[XLSX] CDN geladen, aber XLSX nicht verfügbar");
+                        }
+                    } catch (e) {
+                        console.error("[XLSX] CDN-Laden fehlgeschlagen:", cdnUrl);
+                    }
+                }
+
+                // c) UI finalisieren
+                if (loaded && isXlsxReady()) {
+                    // Bei Bedarf DOMContentLoaded abwarten (falls Button noch nicht im DOM ist)
+                    if (document.readyState === "loading") {
+                        document.addEventListener("DOMContentLoaded", enableExportBtn, {once: true});
+                    } else {
+                        enableExportBtn();
+                    }
+                } else {
+                    console.error("[XLSX] Konnte nicht geladen werden – Export bleibt deaktiviert.");
+                }
+            })();
+        })();
+    </script>
+
+    <!-- Debug: Browser-Cache unterdrücken (Entwicklung) -->
+    <meta
+            content="no-cache, no-store, must-revalidate"
+            http-equiv="Cache-Control"
+    />
+    <meta content="no-cache" http-equiv="Pragma"/>
+    <meta content="0" http-equiv="Expires"/>
+</head>
+
+<body>
+<!--  Toast-Container für Live-Meldungen -------------------------------- -->
+<div id="toast-container"></div>
+
+<div class="container">
+    <!-- =========================================================
+       HEADER-BEREICH  (Logo, Match-Info, Spieluhr, GK-Toggle)
+       ========================================================= -->
+    <header class="header">
+        <div class="header-inner">
+            <!-- linke Spalte: Logo + Vereinsname -->
+            <div class="club-col">
+                <img
+                        class="club-logo"
+                        src="./src/images/scm_logo_sterne.jpg"
+                        alt="SC Magdeburg Logo"
+                />
+                <!-- <h2 class="club-name">SC Magdeburg</h2>-->
+            </div>
+
+            <!-- rechte Spalte: App-Titel + Match-Infos + Timer/GK/Score -->
+            <div class="title-col">
+                <!-- Match-Tabelle (wird von header.js gefüllt) -->
+                <div class="match-information">
+                    <div id="information-container"></div>
+                </div>
+
+                <!-- =====================================================
+                         Spieluhr + GK-Button
+                         =================================================== -->
+                <div class="timer-container">
+                    <!-- ===================== Spieluhr ==================== -->
+                    <div class="timer">
+                        <!-- Clock-Bar mit ±-Buttons (±10 / ±1Sek.) -->
+                        <div class="clock-bar">
+                            <button
+                                    aria-label="-10 Sekunden"
+                                    class="clock-btn"
+                                    id="rewind-fast-btn"
+                            >
+                                «
+                            </button>
+                            <button
+                                    aria-label="-1 Sekunde"
+                                    class="clock-btn"
+                                    id="rewind-btn"
+                            >
+                                ‹
+                            </button>
+
+                            <span class="clock-time" id="game-time">00:00</span>
+
+                            <button
+                                    aria-label="+1 Sekunde"
+                                    class="clock-btn"
+                                    id="forward-btn"
+                            >
+                                ›
+                            </button>
+                            <button
+                                    aria-label="+10 Sekunden"
+                                    class="clock-btn"
+                                    id="forward-fast-btn"
+                            >
+                                »
+                            </button>
+                        </div>
+
+                        <!-- Start / Pause / Reset -->
+                        <div class="timer-controls">
+                            <button id="start-pause-btn">Start</button>
+                            <button id="reset-btn">Reset</button>
+                        </div>
+                    </div>
+
+                    <!-- ===================== GK-Toggle =================== -->
+                    <div class="timer">
+                        <div class="timer-label">Torwart</div>
+                        <button class="goalkeeper-button" id="change-goalkeeper-btn">
+                            TW1
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- =========================================================
+       HAUPTBEREICH – Erfassung & Statistiken
+       ========================================================= -->
+    <main class="main-content">
+        <!-- -----------------------------------------------------
+             1)  Wurf-Erfassung
+             --------------------------------------------------- -->
+        <section class="tracking-section">
+            <!-- Kopfzeile: Titel, Legende, Show-Lines-Toggle -->
+            <div class="tracking-header">
+                <!--                <h2 id="stats-heading">Shot Statistics – #1</h2>-->
+
+                <div class="tracking-tools">
+                    <!-- Kleine Legende ----------------------- -->
+                    <div class="legend">
+                        <span class="legend-dot" style="background: #888"></span>
+                        Shot-Position
+                        <span class="legend-dot" style="background: #ff0000"></span> Tor
+                        <span class="legend-dot" style="background: #00b050"></span>
+                        Gehalten
+                    </div>
+                    <!-- Umschalter Verbindungslinien --------- -->
+                    <div class="visualization-options">
+                        <div class="toggle-container">
+                            <span class="toggle-label">Lines</span>
+                            <label class="toggle-switch">
+                                <input id="show-lines-toggle" type="checkbox"/>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Block 1: Ass-Kontrolle -->
+                    <div class="ass-control">
+                        <button id="ass-decrement">-</button>
+
+                        <div
+                                style="
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                  "
+                        >
+                            <span class="counter-label">Ass</span>
+                            <span class="counter-value" id="ass-value"></span>
+                        </div>
+
+                        <button id="ass-increment">+</button>
+                    </div>
+
+                    <!-- Block 3: Tor-Kontrolle -->
+                    <div class="tor-control">
+                        <button id="tor-decrement">-</button>
+
+                        <div
+                                style="
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                  "
+                        >
+                            <span class="counter-label">Tor</span>
+                            <span class="counter-value" id="tor-value"></span>
+                        </div>
+
+                        <button id="tor-increment">+</button>
+                    </div>
+
+                    <!-- Block 2: 7g6-Kontrolle -->
+                    <div class="seven-g6-control">
+                        <button id="seven-g6-decrement">-</button>
+
+                        <div
+                                style="
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                  "
+                        >
+                            <span class="counter-label">7g6</span>
+                            <span class="counter-value" id="seven-g6-value"></span>
+                        </div>
+
+                        <button id="seven-g6-increment">+</button>
+                    </div>
+
+                    <!-- Block 4: Techniche-Fehler-Kontrolle -->
+                    <div class="ass-control">
+                        <button id="tf-decrement">-</button>
+
+                        <div
+                                style="
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                  "
+                        >
+                            <span class="counter-label">TF</span>
+                            <span class="counter-value" id="tf-value"></span>
+                        </div>
+
+                        <button id="tf-increment">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Voll-Statistik-Tabelle für Keeper ----------------------- -->
+            <div class="gk-stat-wrapper">
+                <table class="gk-stat-table" id="gk-stat-table">
+                    <thead>
+                    <tr>
+                        <!-- linke Hälfte -------------------------------- -->
+                        <th rowspan="2">Name</th>
+                        <th rowspan="2">Spielzeit</th>
+                        <th rowspan="2" title="Paraden">P</th>
+                        <th colspan="11">Paraden&nbsp;je&nbsp;Wurfart</th>
+                        <th rowspan="2" title="Assists pro Tor">Ass</th>
+                        <th class="tor-head" rowspan="2" title="geworfene Tore">
+                            Tor
+                        </th>
+
+                        <th class="divider-col" rowspan="2"></th>
+
+                        <!-- rechte Hälfte ------------------------------- -->
+                        <th class="gk-total-goals" rowspan="2">T</th>
+                        <th colspan="9">Tore&nbsp;je&nbsp;Wurfart</th>
+                        <th rowspan="2">GS</th>
+                        <th rowspan="2">7m</th>
+                        <th rowspan="2">7g6</th>
+                        <th rowspan="2">TF</th>
+                        <th rowspan="2">Ges.</th>
+                        <th rowspan="2">%</th>
+                    </tr>
+                    <tr>
+                        <!-- Unterzeile Paraden -->
+                        <th>RL</th>
+                        <th>RM</th>
+                        <th>RR</th>
+                        <th>K</th>
+                        <th>LA</th>
+                        <th>RA</th>
+                        <th>DL</th>
+                        <th>DM</th>
+                        <th>DR</th>
+                        <th>GS</th>
+                        <th>7m</th>
+                        <!-- Unterzeile Gegentore -->
+                        <th>RL</th>
+                        <th>RM</th>
+                        <th>RR</th>
+                        <th>K</th>
+                        <th>LA</th>
+                        <th>RA</th>
+                        <th>DL</th>
+                        <th>DM</th>
+                        <th>DR</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- wird per JS befüllt -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- =========================================================
+                 Rivalen – identische Aggregat-Tabelle direkt darunter
+                 (gleicher thead, damit die Spaltenindizes passen)
+                 ========================================================= -->
+            <section class="stats-section" id="rival-gk-stat-section" style="margin-top:12px;">
+                <!-- <h3 class="stats-title">Rival – Shot Statistics</h3> -->
+                <div class="gk-stat-wrapper" id="rival-gk-stat-wrapper">
+                    <table class="gk-stat-table" id="rival-gk-stat-table">
+                        <thead>
+                        <tr>
+                            <!-- linke Hälfte -------------------------------- -->
+                            <th rowspan="2">Name</th>
+                            <th rowspan="2">Spielzeit</th>
+                            <th rowspan="2" title="Paraden">P</th>
+                            <th colspan="11">Paraden&nbsp;je&nbsp;Wurfart</th>
+                            <th rowspan="2" title="Assists pro Tor">Ass</th>
+                            <th class="tor-head" rowspan="2" title="geworfene Tore">
+                                Tor
+                            </th>
+
+                            <th class="divider-col" rowspan="2"></th>
+
+                            <!-- rechte Hälfte ------------------------------- -->
+                            <th class="gk-total-goals" rowspan="2">T</th>
+                            <th colspan="9">Tore&nbsp;je&nbsp;Wurfart</th>
+                            <th rowspan="2">GS</th>
+                            <th rowspan="2">7m</th>
+                            <th rowspan="2">7g6</th>
+                            <th rowspan="2">TF</th>
+                            <th rowspan="2">Ges.</th>
+                            <th rowspan="2">%</th>
+                        </tr>
+                        <tr>
+                            <!-- Unterzeile Paraden -->
+                            <th>RL</th>
+                            <th>RM</th>
+                            <th>RR</th>
+                            <th>K</th>
+                            <th>LA</th>
+                            <th>RA</th>
+                            <th>DL</th>
+                            <th>DM</th>
+                            <th>DR</th>
+                            <th>GS</th>
+                            <th>7m</th>
+                            <!-- Unterzeile Gegentore -->
+                            <th>RL</th>
+                            <th>RM</th>
+                            <th>RR</th>
+                            <th>K</th>
+                            <th>LA</th>
+                            <th>RA</th>
+                            <th>DL</th>
+                            <th>DM</th>
+                            <th>DR</th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ------------- 2-spaltiges Grid (Feld | Tabelle) -------- -->
+            <div class="tracking-grid">
+                <!-- a) Spielfeld -------------------------------------- -->
+                <div class="field-col debug-col">
+                    <div class="background-container">
+                        <!-- Action-Buttons auf dem Feld -->
+                        <div class="action-buttons">
+                            <button class="action-btn goal-btn" id="goal-btn">Tor</button>
+                            <button
+                                    class="action-btn goalkeeper-btn"
+                                    id="goalkeeper-save-btn"
+                            >
+                                Gehalten
+                            </button>
+                            <button class="action-btn cancel-btn" id="cancel-btn">
+                                Abbrechen
+                            </button>
+                            <button class="action-btn undo-btn" disabled id="undo-btn">
+                                Rückgängig
+                            </button>
+                        </div>
+
+                        <!-- Image + Canvas -->
+                        <div class="canvas-container">
+                            <img
+                                    alt="Handball Court"
+                                    id="background-image"
+                                    src="./src/images/goal-background.png"
+                            />
+                            <div id="canvas-overlay">
+                                <canvas id="court-canvas"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- b) Shot-Tabelle (rechte Spalte) ------------------- -->
+                <aside class="table-col debug-col" id="shot-table-container">
+                    <!-- wird via JavaScript gefüllt -->
+                </aside>
+
+                <div class="gk-overview-container">
+                    <div class="gk-overview-btn-container">
+                        <div class="timer rival-toggle-card">
+                            <div class="timer-label">Gegnerischer Torhüter</div>
+                            <button class="gk-overview-toggle-btn">Torwart 1</button>
+                        </div>
+                    </div>
+                    <!-- ========================== GK-OVERVIEW POSITIONS BUTTONS ========================== -->
+                    <div class="gk-overview-positions-btns-container">
+                        <button class="gk-overview-action-btn">RA</button>
+                        <button class="gk-overview-action-btn">LA</button>
+                        <button class="gk-overview-action-btn">RL</button>
+                        <button class="gk-overview-action-btn">RM</button>
+                        <button class="gk-overview-action-btn">RR</button>
+                        <button class="gk-overview-action-btn">KM</button>
+                        <button class="gk-overview-action-btn">DB</button>
+                        <button class="gk-overview-action-btn">7m</button>
+                    </div>
+                    <!-- ========================== GK-OVERVIEW ACTION BUTTONS ========================== -->
+
+                    <div class="gk-overview-table">
+
+                        <div class="gk-overview-action-btns-container">
+                            <button class="action-btn goal-btn" id="goal-btn-rival">Tor</button>
+                            <button
+                                    class="action-btn goalkeeper-btn"
+                                    id="goalkeeper-save-btn-rival"
+                            >
+                                Gehalten
+                            </button>
+                            <button class="action-btn cancel-btn" id="cancel-btn-rival">
+                                Abbrechen
+                            </button>
+                            <button class="action-btn undo-btn" disabled id="undo-btn-rival">
+                                Rückgängig
+                            </button>
+                        </div>
+                        <aside
+                                class="table-col debug-col"
+                                id="gk-overview-rival-table"
+                        >
+                            <!-- wird via JavaScript gefüllt -->
+                        </aside>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+        Globale Aktionen
+        ========================================================= -->
+        <div class="control-panel">
+            <button class="clear-all-button" id="clear-btn">Clear All</button>
+            <button class="control-btn" disabled id="export-btn">Export</button>
+        </div>
+    </main>
+</div>
+
+<!--  idb global (muss VOR app.js geladen sein) -->
+<script src="./src/js/lib/idb-umd.js"></script>
+
+<!-- Haupt-Modul -->
+<script src="./src/js/app.js" type="module"></script>
+</body>
+</html>

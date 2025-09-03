@@ -1,0 +1,15 @@
+{
+  "name": "SC Magdeburg Handball Tracker",
+  "short_name": "Handball Tracker",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "theme_color": "#006521",
+  "background_color": "#006521",
+  "icons": [
+    { "src": "src/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "src/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "src/icons/icon-192-maskable.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "src/icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

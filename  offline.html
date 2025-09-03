@@ -1,0 +1,55 @@
+<!-- offline.html – Fallback-Seite für den Service Worker -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Offline – SC Magdeburg Handball Tracker</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+        :root {
+            --bg: #006521;
+            --txt: #fff;
+        }
+
+        body {
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+            font-family: system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--txt);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: .5rem
+        }
+
+        p {
+            opacity: .9
+        }
+
+        button {
+            margin-top: 1.5rem;
+            padding: .6rem 1.2rem;
+            font-size: 1rem;
+            color: var(--bg);
+            background: var(--txt);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Kein Internet 🙁</h1>
+    <p>Du bist gerade offline. Sobald eine Verbindung besteht,<br>
+        werden deine Daten automatisch synchronisiert.</p>
+    <button onclick="location.reload()">Erneut versuchen</button>
+</main>
+</body>
+</html>

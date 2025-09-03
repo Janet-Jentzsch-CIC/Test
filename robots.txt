@@ -1,0 +1,1 @@
+# robots.txt for SC Magdeburg Handball Shot-TrackerUser-agent: *Disallow: /

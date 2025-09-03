@@ -1,0 +1,2099 @@
+/*  -------------------------------------------------------------------------
+    styles.css  –  zentrales Stylesheet der PWA
+    ---------------------------------------------------------------------- */
+
+/*  ==== 1. Grundfarben (CSS-Custom-Properties) =========================== */
+:root {
+    /* ----- Light-Defaults ----- */
+    --primary-green: #006521;
+    --primary-red: #d91319;
+    --light-green: #008a2c;
+    --light-red: #f42831;
+    --dark-green: #004e1a;
+    --dark-red: #b30f14;
+
+    --text-light: #ffffff;
+
+    /* ---------- Light-Neutrals ---------- */
+    --text-dark: #333333;
+    --background-light: #f5f5f5;
+    --background-medium: #e0e0e0;
+    --accent-gray: #cccccc;
+    --shadow-color: rgba(0, 0, 0, .20);
+
+    /* ---------- Tabellen & Stripes ---------- */
+    --table-bg-even: #eaeaea;
+    --table-bg-odd: #f8f8f8;
+    --table-font: #0a0a0a;
+    --table-head-bg: #c2c2c2;
+    --table-head-font: #0a0a0a;
+
+    /* ---------- Shot-Colours ---------- */
+    --shot-goal-bg: #800; /* dunkles Rot */
+    --shot-save-bg: #084; /* dunkles Grün */
+
+    /* Globale Akzentfarbe für UI-Handles (für den Rival-Accordion-Button) */
+    --accent-bg: #0A7C3E; /* Default: Vereinsgrün leicht dunkler */
+}
+
+/* ================= Rival-Theme-Variablen ================= */
+/* --- Light ------------------------------------------------ */
+/* Kräftigere, klar unterscheidbare RIVAL-Farben */
+:root {
+    --rival-1-bg: #00a7c2; /* lebhaftes Cyan (gut neben Vereinsgrün) */
+    --rival-1-bg-hover: #00b8d6;
+    --rival-2-bg: #7b61ff; /* Violett/Indigo (deutlich anders als TW2-Blau) */
+    --rival-2-bg-hover: #8b73ff;
+    --rival-ring: rgba(0, 0, 0, .12); /* feine Lichtkante im Light-Theme */
+}
+
+/* --- Dark ------------------------------------------------- */
+/* Etwas heller/satter, damit es im Dark-UI nicht „ausgraut“ */
+html[data-theme="dark"] {
+    --rival-1-bg: #00bcd4;
+    --rival-1-bg-hover: #26c6da;
+    --rival-2-bg: #a78bfa;
+    --rival-2-bg-hover: #b79cff;
+    --rival-ring: rgba(255, 255, 255, .16);
+}
+
+/* ===== RIVAL-Button – Basis (Kapsel wie bei goalkeeper-button) ===== */
+/* identische Grundform & Typo wie bei deinem TW-Button */
+.rivalkeeper-button {
+    color: #fff;
+    border: 0; /* kein grauer Rand mehr */
+    padding: 0.5rem 1rem;
+    border-radius: 9999px; /* volle Kapsel */
+    cursor: pointer;
+    transition: background-color .2s ease, transform .08s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: .017em;
+    box-shadow: inset 0 1px 0 var(--rival-ring), /* feine Glanzkante oben */ 0 4px 10px var(--shadow-color); /* weicher Drop-Shadow */
+}
+
+/* Fokussierbarer, klarer Fokusrahmen (WCAG) */
+.rivalkeeper-button:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, .75);
+    outline-offset: 2px;
+}
+
+/* leichte „Pressed“-Rückmeldung */
+.rivalkeeper-button:active {
+    transform: translateY(1px) scale(.98);
+}
+
+/* ===== Farbschemata für RIVAL 1/2 auf Variablenbasis ===== */
+.rivalkeeper-1 {
+    background: var(--rival-1-bg);
+}
+
+.rivalkeeper-1:hover {
+    background: var(--rival-1-bg-hover);
+}
+
+.rivalkeeper-2 {
+    background: var(--rival-2-bg);
+}
+
+.rivalkeeper-2:hover {
+    background: var(--rival-2-bg-hover);
+}
+
+/* ===== Alte Layout-Klasse neutralisieren, falls vorhanden ===== */
+/* Breite/Höhe vom alten Überblick-Button lösen (Auto-Size) */
+.gk-overview-toggle-btn.rivalkeeper-button {
+    background: transparent; /* Farbe kommt über .rivalkeeper-1/-2 */
+    box-shadow: none; /* Schatten übernimmt .rivalkeeper-button */
+    height: auto;
+    width: auto;
+    padding: 0; /* Padding steuert die Kapsel-Klasse */
+}
+
+/* ===== RIVAL zeigt keinen Nummern-Badge ===== */
+/* Bei RIVAL kein Trikot-Badge – Platz fällt automatisch weg */
+.rivalkeeper-button .gk-num {
+    display: none !important;
+}
+
+/*  ==== 2. Basislayout =================================================== */
+body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 0.75rem;
+    margin: 0;
+    padding: 0;
+    background: var(--background-light);
+    color: var(--text-dark);
+}
+
+/*  ----- 2.1 Header ------------------------------------------------------ */
+.header {
+    background: var(--primary-green);
+    color: var(--text-light);
+    padding: 4px 15px;
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 2px 5px var(--shadow-color);
+    position: relative;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    text-align: left;
+    padding: 5px 0;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* ==== Utility-Buttons ============================================== */
+/* Primärer Aktion-Button */
+.btn-primary {
+    background: var(--primary-green);
+    color: var(--text-light);
+}
+
+.btn-primary:hover {
+    background: var(--light-green);
+}
+
+/* Sekundär (neutral) */
+.btn-secondary {
+    background: var(--background-medium);
+    color: var(--text-dark);
+}
+
+.btn-secondary:hover {
+    background: var(--accent-gray);
+}
+
+/* Danger/Warnung */
+.btn-danger {
+    background: var(--primary-red);
+    color: var(--text-light);
+}
+
+.btn-danger:hover {
+    background: var(--light-red);
+}
+
+/* Torwart-Button: Standard-Design */
+#change-goalkeeper-btn {
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* ===== Eigene & Rival GK-Toggles – gleiche Basisoptik ================== */
+/* Beide Klassen teilen sich dieselbe Grundform (runde Kapsel, Schatten)  */
+.goalkeeper-button,
+.rivalkeeper-button {
+    /* identisch zu deinem bestehenden Torwart-Toggle */
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: inline-flex; /* schön zentriert */
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.017em;
+    border: 2px solid rgba(0, 0, 0, .15);
+}
+
+/* Abzeichen mit Nummer – für beide Varianten wiederverwenden */
+.goalkeeper-button .gk-num,
+.rivalkeeper-button .gk-num {
+    display: inline-block;
+    min-width: 26px;
+    padding: 2px 6px;
+    background: rgba(0, 0, 0, .25);
+    border-radius: 6px;
+    font-weight: 700;
+}
+
+/* ===== Eigene Farbschemata (bereits vorhanden) ========================= */
+.goalkeeper-1 {
+    background: #009e90;
+    color: #fff;
+}
+
+.goalkeeper-1:hover {
+    background: #00b0a0;
+}
+
+.goalkeeper-2 {
+    background: #003c80;
+    color: #fff;
+}
+
+.goalkeeper-2:hover {
+    background: #004d99;
+}
+
+/* ===== Rival-Farbschemata ======================================== */
+/* Bewusst andere Töne, damit man Rival sofort erkennt (neutral/bläulich) */
+.rivalkeeper-1 {
+    background: #455a64;
+    color: #fff;
+}
+
+/* Slate/Neutral */
+.rivalkeeper-1:hover {
+    background: #546e7a;
+}
+
+.rivalkeeper-2 {
+    background: #5c6bc0;
+    color: #fff;
+}
+
+/* Indigo */
+.rivalkeeper-2:hover {
+    background: #6976d1;
+}
+
+.gk-overview-toggle-btn.rivalkeeper-button {
+    background: transparent; /* Basis – konkrete Farbe kommt über .rivalkeeper-1/-2 */
+    box-shadow: none; /* Schatten holt die Gruppendefinition oben */
+    height: auto; /* nicht festklemmen – Kapsel soll sich selbst ergeben */
+    width: auto;
+    padding: 0.5rem 1rem;
+}
+
+/* ---------- GK-Toggle: bessere Lesbarkeit ---------- */
+.goalkeeper-button {
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.017em; /* ≈ 0,25px bei ~14–15px Schriftgröße, robust über Browser */
+    text-transform: none; /* Namen unverändert lassen */
+    border: 2px solid rgba(0, 0, 0, .15); /* dezenter Rahmen für Kontrastkante */
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.goalkeeper-button .gk-num {
+    display: inline-block;
+    min-width: 26px;
+    padding: 2px 6px;
+    background: rgba(0, 0, 0, .25); /* halbtransparent schwarz */
+    border-radius: 6px;
+    font-weight: 700;
+}
+
+/* konsistente Farben */
+.goalkeeper-1 {
+    background: #009e90;
+    color: #fff;
+}
+
+.goalkeeper-1:hover {
+    background: #00b0a0;
+}
+
+.goalkeeper-2 {
+    background: #003c80;
+    color: #fff;
+}
+
+.goalkeeper-2:hover {
+    background: #004d99;
+}
+
+
+/* Match-Information – volle Breite, keine äußeren Ränder */
+.match-information {
+    box-sizing: border-box;
+}
+
+#information-container {
+    color: rgba(255, 255, 255, 0.9);
+    box-sizing: border-box;
+}
+
+/* ------------------------------------------------------------------
+   MATCH-INFO-TABELLE – EINHEITLICHES LAYOUT (zusammengeführt)
+   ------------------------------------------------------------------ */
+#information-container table {
+    width: 100%;
+    max-width: 620px;
+    table-layout: fixed; /* gleichmäßige Spaltenbreiten */
+}
+
+/* Label-Spalten (1 & 3) rechtsbündig */
+#information-container td:nth-child(1),
+#information-container td:nth-child(3) {
+    text-align: right;
+    padding-right: 6px;
+}
+
+/* Kompaktere Zeilenhöhe für alle Zellen */
+#information-container td {
+    line-height: 1.3;
+    padding-block: 2px; /* entspricht deinen padding-top/bottom: 2px */
+}
+
+/* Eingabefelder im Header-Block */
+#information-container input {
+    line-height: 1.2;
+    height: 1.65rem;
+    min-width: 120px;
+}
+
+/* === Header: kompakte Eingabefelder nach Inhalt ======================= */
+.header-info-grid input[type="text"],
+.header-info-grid input[type="number"] {
+    width: auto; /* nicht mehr hart auf 100% */
+    min-width: 0; /* Grid darf wirklich klein werden */
+    font-variant-numeric: tabular-nums;
+}
+
+/* Sinnvolle Zielbreiten pro Feldtyp (anpassbar) */
+.header-info-grid .input--nr    { width: 3.5ch; text-align: center; } /* 2 Ziffern */
+.header-info-grid .input--date  { width: 10.5ch; } /* TT.MM.JJJJ */
+.header-info-grid .input--name  { width: clamp(12ch, 16vw, 22ch); } /* TW-Name */
+.header-info-grid .input--team,
+.header-info-grid .input--gegner{ width: clamp(12ch, 18vw, 24ch); } /* Team / Gegner */
+.header-info-grid .input--ort   { width: clamp(10ch, 18vw, 22ch); } /* Ort / Halle */
+.header-info-grid .input--wettb { width: clamp(12ch, 22vw, 28ch); } /* Wettbewerb */
+
+/* Wichtig: altes min-width (120px) für Inputs im Header-Grid neutralisieren */
+#information-container .header-info-grid input {
+    min-width: 0;
+}
+
+/*  ----- 2.2 Timer-Sektion / Button Torwart ------------------------------------------------ */
+.timer-container {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    justify-content: flex-start;
+    margin-top: .5rem;
+}
+
+.timer {
+    background: #004d1a;
+    padding: .65rem .9rem;
+    border-radius: 10px;
+    color: white;
+    min-width: 160px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Kompakte Timer-Karte (für kleine Inline-Boxen) */
+.timer--compact {
+    padding: .45rem .7rem; /* weniger Innenabstand */
+    min-width: unset; /* Breite durch Inhalt */
+    width: fit-content; /* Karte schrumpft an Inhalt */
+    gap: .35rem;
+}
+
+/* Karte explizit im Rival-Block mittig ausrichten */
+.gk-overview-btn-container.timer {
+    display: inline-flex; /* Karte soll nur so breit wie nötig sein */
+    align-items: center;
+    justify-content: center;
+}
+
+/* Farbvariante für Rival – nutzt die bestehende Theme-Variable */
+.timer--rival {
+    /* neutrale, aber satte Fläche sorgt für Kontrast in Light/Dark */
+    background: var(--accent-bg);
+    color: var(--text-light);
+    box-shadow: 0 2px 6px var(--shadow-color);
+    border-radius: 10px;
+}
+
+/* Die Rival-Taste in der Karte: Breite/Schattierung an Karte anpassen */
+.gk-overview-btn-container .gk-overview-toggle-btn {
+    /* Button fügt sich in die Karte ein, kein eigener Kasten-Schatten */
+    width: auto;
+    height: auto;
+    padding: .45rem .8rem;
+    box-shadow: none;
+    border: 2px solid rgba(0, 0, 0, .15);
+}
+
+/* Light/Dark: Rival-Taste hebt sich auf der Karte deutlich ab */
+.rivalkeeper-1 {
+    background: #455a64;
+    color: #fff;
+}
+
+/* neutral-slate */
+.rivalkeeper-1:hover {
+    background: #546e7a;
+}
+
+.rivalkeeper-2 {
+    background: #5c6bc0;
+    color: #fff;
+}
+
+/* indigo */
+.rivalkeeper-2:hover {
+    background: #6976d1;
+}
+
+/* Optional: auf sehr dunklem Hintergrund die Schrift minimal kräftiger */
+@media (prefers-color-scheme: dark) {
+    .timer--rival {
+        color: #fff;
+    }
+}
+
+/* =================== Rival-GK Toggle – feste Farbzustände =================== */
+/* Variablen – erlauben Theme-Tuning ohne Klassentausch */
+:root {
+    --rival-gk1: #1aa6b2; /* Türkisblau */
+    --rival-gk1-hover: #21b9c6;
+    --rival-gk2: #6b60d3; /* Violett/Indigo */
+    --rival-gk2-hover: #7a72de;
+}
+
+html[data-theme="dark"] {
+    --rival-gk1: #1694a0;
+    --rival-gk1-hover: #1fa9b5;
+    --rival-gk2: #5a52c7;
+    --rival-gk2-hover: #6a63d2;
+}
+
+.rival-toggle-card.timer {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: .65rem .9rem;
+    border-radius: 10px;
+    background: #004d1a;
+    color: #fff;
+}
+
+/* Beschriftung „Rival“ oben in der Kachel */
+.rival-toggle-card .timer-label {
+    font-size: .8rem;
+    opacity: .9;
+}
+
+.rival-toggle-card .gk-overview-toggle-btn.rivalkeeper-button {
+    /* gemeinsame Grundform wie bei deiner eigenen GK-Kapsel */
+    color: #fff;
+    border: 2px solid rgba(0, 0, 0, .15);
+    border-radius: 8px;
+    padding: .5rem 1rem;
+    font-weight: 600;
+    letter-spacing: .017em;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color .25s ease;
+}
+
+/* Rival 1 */
+.rival-toggle-card .gk-overview-toggle-btn.rivalkeeper-button.rivalkeeper-1 {
+    background: var(--rival-gk1);
+}
+
+.rival-toggle-card .gk-overview-toggle-btn.rivalkeeper-button.rivalkeeper-1:hover {
+    background: var(--rival-gk1-hover);
+}
+
+/* Rival 2 */
+.rival-toggle-card .gk-overview-toggle-btn.rivalkeeper-button.rivalkeeper-2 {
+    background: var(--rival-gk2);
+}
+
+.rival-toggle-card .gk-overview-toggle-btn.rivalkeeper-button.rivalkeeper-2:hover {
+    background: var(--rival-gk2-hover);
+}
+
+/* Fokus gut sichtbar (Tastatur/Barrierefreiheit) */
+.rival-toggle-card .gk-overview-toggle-btn.rivalkeeper-button:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 1px;
+}
+
+#game-time,
+#current-time {
+    font-weight: bold;
+    margin: 5px 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.timer-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 2px;
+}
+
+.timer-controls button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    background: var(--text-light);
+    color: var(--primary-green);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+/*  ==== 3. Haupt-Container ============================================== */
+.container {
+    max-width: 1200px;
+    /*margin: 0 auto;*/
+    padding: 2px;
+}
+
+/*  ----- Tabs (Navigation) ------------------------------------------------ */
+.stats-tabs {
+    display: flex;
+    justify-content: center;
+    background: var(--background-light);
+    border-bottom: 1px solid var(--accent-gray);
+}
+
+.tab-btn {
+    background: var(--background-medium);
+    border: 1px solid var(--accent-gray);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    padding: 12px 20px;
+    margin: 0 5px;
+    cursor: pointer;
+    transition: 0.3s;
+    color: var(--text-dark);
+}
+
+.tab-btn:hover {
+    background: var(--light-green);
+    color: var(--text-light);
+}
+
+.tab-btn.active {
+    background: var(--primary-green);
+    color: var(--text-light);
+    font-weight: bold;
+}
+
+.tab-content {
+    display: none;
+    padding: 20px;
+    border: 1px solid var(--accent-gray);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    background: var(--background-light);
+    animation: fadeEffect 1s;
+}
+
+/* Aktives Tab sichtbar machen */
+.tab-content.active {
+    display: block;
+}
+
+/* Fade-In für Tab-Inhalte */
+@keyframes fadeEffect {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* ===== Tracking-Grid: 2 Spalten =============================== */
+.tracking-grid {
+    display: grid;
+    grid-template-columns: 40% 20% 40%;
+    gap: 0 1rem;
+    align-items: start;
+}
+
+/* --------------------------------------------------------------
+   Spalten-Rahmen für visuelle Kontrolle (Debug)
+-------------------------------------------------------------- */
+.debug-col {
+    box-sizing: border-box; /* damit Breite exakt bleibt */
+}
+
+.table-col {
+    width: 100%;
+    padding: 0.5rem;
+}
+
+/* ==== Statistik-Grids ============================== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* drei Spalten für Shot/Goal */
+    gap: 10px; /* Abstand zwischen den Boxen */
+    margin-top: 10px;
+}
+
+/* ==== 4.1 Toggle-Schalter für Show Lines ============================= */
+.visualization-options {
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+    align-items: center;
+    gap: 2rem;
+}
+
+.toggle-switch .slider {
+    margin: 0;
+}
+
+.toggle-label {
+    color: var(--text-dark);
+    user-select: none;
+}
+
+/* Label ohne Block-Verhalten, damit es nicht umbricht */
+.toggle-switch .toggle-label {
+    display: inline;
+    margin-left: 5px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.toggle-label {
+    margin-bottom: 5px;
+    color: var(--text-dark);
+    font-size: 14px;
+    user-select: none;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--accent-gray);
+    border-radius: 20px;
+    transition: 0.4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background: #fff;
+    border-radius: 50%;
+    transition: 0.4s;
+}
+
+input:checked + .slider {
+    background: var(--primary-green);
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px);
+}
+
+/*  ==== 4. Canvas & Bedienelemente ====================================== */
+.background-container {
+    display: flex;
+    flex-direction: column;
+}
+
+#background-image {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+#canvas-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10; /* direkt über dem Bild, aber unter den Buttons */
+    pointer-events: none; /* Klicks gehen ans Canvas durch */
+}
+
+#canvas-overlay canvas {
+    pointer-events: auto;
+    z-index: 15; /* höher als das Hintergrundbild */
+}
+
+#court-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+/* ==== 4.2 Field-Container ================================ */
+.field-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0;
+    position: relative;
+}
+
+.legend-dot {
+    display: inline-block;
+    border-radius: 50%;
+    margin-right: 4px;
+    width: 10px;
+    height: 10px;
+    vertical-align: middle;
+}
+
+/* Formular-Steuerelemente */
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: var(--text-dark);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--primary-green);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 101, 33, 0.2);
+}
+
+/*  ==== 5. Action-Buttons (Tor, Gehalten, Cancel) ======================= */
+.action-buttons {
+    display: flex;
+    flex-direction: row;
+    z-index: 20;
+    gap: 0.5rem;
+    top: clamp(1rem, 3vw, 1.8rem);
+    left: clamp(1rem, 6vw, 5rem);
+    transform-origin: top left;
+    margin-bottom: 1rem;
+}
+
+.canvas-container {
+    position: relative;
+    width: 100%;
+    max-width: 100%; /* or set fixed width like 800px if needed */
+    height: auto;
+}
+
+/* ==================== Shot-Tabelle rechts ==================== */
+#shot-table-container {
+    height: 100%; /* volle Höhe der Tracking-Section   */
+    overflow-y: auto; /* Scrollen, falls Einträge > Höhe   */
+    padding: 0.25rem;
+}
+
+.shot-table {
+    /*width: 100%;*/
+    border-collapse: collapse;
+}
+
+.shot-table th,
+.shot-table td {
+    text-align: center;
+    padding: 4px 6px;
+    border: 1px solid var(--accent-gray);
+}
+
+.shot-table tbody tr:nth-child(odd) {
+    background: var(--table-bg-odd);
+}
+
+.shot-table tbody tr:nth-child(even) {
+    background: var(--table-bg-even);
+}
+
+/* Farbcodierung ------------------------------------------------ */
+.shot-row--goal {
+    background: var(--shot-goal-bg);
+    color: #ffd0d0;
+}
+
+.shot-row--save {
+    background: var(--shot-save-bg);
+    color: #b9ffbd;
+}
+
+/* ==================== Torwart-Überblick-Tabelle ==================== */
+.gk-overview-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.gk-names-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.gk-names-container h3 {
+    margin: 0;
+}
+
+.gk-overview-btn-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 1rem;
+}
+
+.gk-overview-table {
+    display: flex;
+    flex-direction: row;
+    column-gap: 3rem;
+    width: 100%;
+    height: 100%;
+}
+
+#gk-overview-own-table,
+#gk-overview-rival-table {
+    overflow: auto;
+}
+
+.gk-overview-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: clamp(24px, 5vw, 30px);
+    width: clamp(80px, 20vw, 100px);
+    margin: 0;
+    padding: 0;
+    font-weight: bold;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    transition: 0.2s;
+}
+
+.gk-overview-toggle-btn:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.gk-overview-positions-btns-container {
+    display: flex;
+    flex-direction: row;
+    z-index: 20;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    top: clamp(1rem, 3vw, 1.8rem);
+    left: clamp(1rem, 6vw, 5rem);
+    transform-origin: top left;
+    margin-bottom: 1rem;
+}
+
+.gk-overview-action-btns-container {
+    display: flex;
+    flex-direction: column;
+    z-index: 20;
+    gap: 0.5rem;
+    top: clamp(1rem, 3vw, 1.8rem);
+    left: clamp(1rem, 6vw, 5rem);
+    transform-origin: top left;
+    margin-bottom: 1rem;
+}
+
+.gk-overview-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: clamp(24px, 5vw, 30px);
+    width: clamp(80px, 20vw, 100px);
+    margin: 0;
+    padding: 0;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    transition: 0.2s;
+}
+
+.gk-overview-action-btn:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Farbcodierung -------------------------------------------- */
+/* iPad / kleinere Tablets ---------------------------------- */
+@media (max-width: 1024px) {
+    .action-buttons {
+        transform: scale(0.8);
+    }
+
+    .action-btn {
+        height: clamp(24px, 5vw, 30px);
+        font-size: clamp(12px, 2.5vw, 16px);
+    }
+}
+
+/* iPad Portrait & Phones ------------------------------------ */
+@media (max-width: 820px) {
+    .action-buttons {
+        transform: scale(0.65);
+        top: 0.5rem;
+        left: 0.5rem;
+    }
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: clamp(24px, 5vw, 30px);
+    width: clamp(80px, 20vw, 100px);
+    margin: 0;
+    padding: 0;
+    font-weight: bold;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    opacity: 0.2;
+    pointer-events: none;
+    transition: 0.2s;
+}
+
+.action-btn.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.goal-btn {
+    background: var(--primary-red);
+    z-index: 12;
+}
+
+.goal-btn:hover {
+    background: var(--light-red);
+    transform: translateY(-2px);
+}
+
+.goal-btn:active {
+    background: var(--dark-red);
+    transform: translateY(0);
+}
+
+.goalkeeper-btn {
+    background: var(--primary-green);
+    z-index: 11;
+}
+
+.goalkeeper-btn:hover {
+    background: var(--light-green);
+    transform: translateY(-2px);
+}
+
+.goalkeeper-btn:active {
+    background: var(--dark-green);
+    transform: translateY(0);
+}
+
+.cancel-btn {
+    background: #666;
+    z-index: 10;
+}
+
+.cancel-btn:hover {
+    background: #888;
+    transform: translateY(-2px);
+}
+
+.cancel-btn:active {
+    background: #444;
+    transform: translateY(0);
+}
+
+.undo-btn {
+    background: #666;
+    z-index: 9;
+}
+
+.undo-btn:hover {
+    background: #888;
+    transform: translateY(-2px);
+}
+
+.undo-btn:active {
+    background: #444;
+    transform: translateY(0);
+}
+
+/*  ==== 6. Tracking- und Statistikbereiche ============================== */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 15px;
+}
+
+.tracking-section {
+    margin-bottom: 1px;
+}
+
+.tracking-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+#step-indicator {
+    background: var(--primary-green);
+    color: var(--text-light);
+    padding: 8px 15px;
+    border-radius: 20px;
+}
+
+/*  ==== 7. Toast-Benachrichtigungen ===================================== */
+#toast-container {
+    position: fixed;
+    left: 50%;
+    bottom: 1rem;
+    transform: translateX(-50%);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    pointer-events: none;
+}
+
+.toast {
+    pointer-events: auto;
+    min-width: 280px;
+    max-width: 90vw;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    background: var(--primary-green);
+    color: var(--text-light);
+    font-weight: 500;
+    line-height: 1.3;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: toast-slide-in 0.3s forwards;
+    user-select: none;
+}
+
+.toast--update {
+    background: var(--primary-green);
+}
+
+.toast--offline {
+    background: var(--primary-red);
+}
+
+/* Header insgesamt mittig ausrichten */
+.tracking-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.tracking-tools {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-top: 1px;
+}
+
+.tracking-header h2 {
+    margin: 0;
+}
+
+@keyframes toast-slide-in {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes toast-slide-out {
+    to {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+}
+
+/*  ==== 8. Responsive Breakpoints ======================================= */
+@media (max-width: 768px) {
+    .timer-container {
+        flex-direction: column;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .control-panel {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .control-btn {
+        width: 100%;
+    }
+}
+
+/* =====================================================================
+   Voll-Statistik-Tabelle (Torhüter)
+   ================================================================== */
+.gk-stat-wrapper {
+    overflow-x: auto; /* horizontales Scrollen auf Phones */
+    margin: 0.5rem 0 1.5rem;
+}
+
+/* Basislayout ------------------------------------------------------ */
+.gk-stat-table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 1100px; /* damit Scroll-Bar erscheint */
+}
+
+.gk-stat-table th,
+.gk-stat-table td {
+    border: 1px solid var(--accent-gray);
+    padding: 2px 4px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Kopfzeilen */
+.gk-stat-table thead th {
+    background: var(--table-head-bg);
+    color: var(--table-head-font);
+    font-weight: bold;
+}
+
+.tor-head {
+    background: #ffcccc;
+    color: #b30000;
+}
+
+/*!* visueller Trenner *!
+.divider-col {
+    border-left: 3px double #000;
+    border-right: 3px double #000;
+    width: 1px;
+}*/
+
+/* Zebrastreifen für Rows */
+.gk-stat-table tbody tr:nth-child(even) {
+    background: var(--table-bg-even);
+}
+
+/* Summenzeile dezent hervorheben (ohne Theme-Bruch) */
+.gk-stat-table tr.gk-sum-row td:first-child { /* nur GK-Label fett */
+    font-weight: 700; /* bewusst sparsam, um Gesamtbild ruhig zu halten */
+}
+
+/* Farb-Highlights für neue Einträge (wird per JS gesetzt) */
+.gk-save {
+    background: #c6efce !important;
+}
+
+/* grün  */
+.gk-goal {
+    background: #ffc7ce !important;
+}
+
+/* ==== Globale Aktionen unten ======================== */
+.control-panel {
+    display: flex;
+    gap: 10px;
+    justify-content: left;
+    margin-left: 20px;
+}
+
+.control-btn {
+    background: var(--primary-green);
+    color: var(--text-light);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: 0.3s;
+}
+
+.control-btn:hover {
+    background: var(--light-green);
+}
+
+.clear-all-button {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    transition: background-color 0.3s ease;
+}
+
+.clear-all-button:hover {
+    background-color: #f1b0b7;
+    cursor: pointer;
+}
+
+/* Reset-Game = helles Rot/Pink */
+.reset-btn {
+    background: #ff8f8f;
+    color: #fff;
+}
+
+.reset-btn:hover {
+    background: #ffa8a8;
+}
+
+.reset-btn:active {
+    background: #ff6b6b;
+}
+
+/* buttons.scss */
+
+/* Basis – greift für alle Buttons im disabled-Zustand */
+button[disabled],
+button:disabled {
+    opacity: 0.35; /* ausgegraut */
+    cursor: not-allowed; /* typischer „verboten“-Cursor */
+    pointer-events: none; /* killt Hover-Effekte komplett */
+    filter: grayscale(70%); /* optional: noch grauer */
+}
+
+/* Nur falls du eigene Farbklassen hast (btn-primary / btn-secondary …) */
+/* die im Hover überschrieben werden: */
+button.btn-primary:disabled,
+button.btn-secondary:disabled {
+    background-color: #888; /* oder eine Variable für „grau“ */
+    border-color: #888;
+}
+
+/* --- Timer-Bar ------------------------------------------------- */
+.clock-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 18px;
+    justify-content: center;
+    margin: 0;
+}
+
+.clock-time {
+    font-weight: 700;
+    font-size: 32px;
+    color: white;
+    min-width: 80px;
+    text-align: center;
+}
+
+.clock-btn {
+    background: none;
+    border: none;
+    font-size: 22px;
+    font-weight: 700;
+    padding: 0 4px;
+    cursor: pointer;
+    line-height: 1;
+    user-select: none;
+}
+
+.clock-btn:active {
+    transform: scale(0.9);
+}
+
+/* ==== Buttons +- ====*/
+
+.ass-control {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.4rem;
+    background: #e0e0e0;
+    border-radius: 6px;
+    font-size: 0.7rem;
+}
+
+.ass-control #ass-value {
+    line-height: 1.1;
+    text-align: center;
+    min-width: 48px;
+}
+
+.ass-control button {
+    padding: 0.3rem 0.8rem;
+    font-size: 1.4rem;
+    border: none;
+    border-radius: 5px;
+    background-color: #006521;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.ass-control button:hover {
+    background-color: #004e1a;
+}
+
+.ass-control span {
+    font-weight: bold;
+    width: 2.2rem;
+    text-align: center;
+    display: inline-block;
+}
+
+.seven-g6-control {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.4rem;
+    background: #e0e0e0;
+    border-radius: 6px;
+    font-size: 0.7rem;
+}
+
+.seven-g6-control #seven-g6-value {
+    line-height: 1.1;
+    text-align: center;
+    min-width: 48px;
+}
+
+.seven-g6-control button {
+    padding: 0.3rem 0.8rem;
+    font-size: 1.4rem;
+    border: none;
+    border-radius: 5px;
+    background-color: #006521;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.seven-g6-control button:hover {
+    background-color: #004e1a;
+}
+
+.seven-g6-control span {
+    font-weight: bold;
+    width: 2.2rem;
+    text-align: center;
+    display: inline-block;
+}
+
+.tor-control {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.4rem;
+    background: #e0e0e0;
+    border-radius: 6px;
+    font-size: 0.7rem;
+}
+
+.tor-control #tor-value {
+    line-height: 1.1;
+    text-align: center;
+    min-width: 48px;
+}
+
+.tor-control button {
+    padding: 0.3rem 0.8rem;
+    font-size: 1.4rem;
+    border: none;
+    border-radius: 5px;
+    background-color: #006521;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.tor-control button:hover {
+    background-color: #004e1a;
+}
+
+.tor-control span {
+    font-weight: bold;
+    width: 2.2rem;
+    text-align: center;
+    display: inline-block;
+}
+
+.tf-control {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.4rem;
+    background: #e0e0e0;
+    border-radius: 6px;
+    font-size: 0.7rem;
+}
+
+.tf-control #tf-value {
+    line-height: 1.1;
+    text-align: center;
+    min-width: 48px;
+}
+
+.tf-control button {
+    padding: 0.3rem 0.8rem;
+    font-size: 1.4rem;
+    border: none;
+    border-radius: 5px;
+    background-color: #006521;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.tf-control button:hover {
+    background-color: #004e1a;
+}
+
+.tf-control span {
+    font-weight: bold;
+    width: 2.2rem;
+    text-align: center;
+    display: inline-block;
+}
+
+/* -----------------------------------------------------------
+   Counter-Blöcke (Ass, 7g6) – Label & Value
+   ----------------------------------------------------------- */
+.counter-label {
+    font-size: 1em;
+    color: var(--text-dark);
+    line-height: 1.1;
+}
+
+.counter-value {
+    font-size: 1em;
+    font-weight: 700;
+    color: var(--primary-green);
+    line-height: 1.1;
+    min-width: 48px;
+    text-align: center;
+}
+
+/* === Score-Block HT/FT ======================================= */
+
+.score-block label {
+    font-size: 0.7rem;
+    margin-bottom: 2px;
+}
+
+.score-block input {
+    width: 60px;
+    text-align: center;
+    font-weight: 600;
+    padding: 2px 4px;
+    border-radius: 4px;
+    border: 1px solid var(--accent-gray);
+}
+
+/* === Score-Block HT/FT ======================================= */
+.score-block {
+    display: flex;
+    gap: 1.2rem;
+    background: #004d1a;
+    padding: 0.6rem 1rem;
+    border-radius: 10px;
+    color: var(--text-light);
+}
+
+.score-input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.75rem;
+}
+
+.score-input-group label {
+    margin-bottom: 2px;
+    font-weight: 600;
+}
+
+.score-input-group input {
+    width: 60px;
+    text-align: center;
+    font-weight: 600;
+    border: 1px solid var(--accent-gray);
+    border-radius: 4px;
+    padding: 2px 4px;
+}
+
+/* ----------  Header‑Grundgerüst  ---------------------------- */
+.header-inner {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.club-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 80px;
+}
+
+.club-logo {
+    width: 70px;
+    height: auto;
+    display: block;
+    margin-bottom: 0.25rem;
+    margin-top: 0.25rem;
+}
+
+.club-name {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-light);
+}
+
+.title-col {
+    flex: 1 1 auto;
+}
+
+.app-title {
+    display: none;
+    color: var(--text-light);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.75rem 0;
+}
+
+.header-inner {
+    padding-right: 1rem;
+}
+
+.shot-table th,
+.shot-table td,
+.gk-overview-table td,
+.gk-overview-table th {
+    color: var(--text-dark);
+}
+
+/* === Restore colour coding for Goal / Save rows =============== */
+.shot-row--goal td {
+    color: #ffd0d0; /* pale red on dark bg */
+}
+
+.shot-row--save td {
+    color: #b9ffbd; /* pale green on dark bg */
+}
+
+/* ========================= Rival-Accordion (nicht invasiv) ========================= */
+/* Der Wrapper existiert bereits: #rival-gk-stat-wrapper */
+#rival-gk-stat-wrapper.rival-accordion {
+    position: relative;
+}
+
+/* Schlankes, klickbares "Ohr" oben links – bleibt immer sichtbar */
+#rival-gk-stat-wrapper .rival-acc-handle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: var(--accent-bg, rgba(0, 0, 0, .55));
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.015em;
+    line-height: 1;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .35);
+    cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
+    padding: 0 10px;
+    border-bottom-right-radius: 10px;
+    opacity: 1; /* volle Deckkraft im Normalzustand */
+    transition: opacity .18s ease; /* sanfter Übergang */
+    min-width: 110px; /* Breite */
+    padding-inline: 8px; /* proportional zu vorher 12px etwas schmaler */
+    gap: 6px; /* leicht reduzierte Innenabstände */
+    height: 16px;
+    padding-block: 2px;
+}
+
+/* Aufgeklappt -> halbtransparent */
+#rival-gk-stat-wrapper .rival-acc-handle[aria-expanded="true"] {
+    opacity: .2; /* ≈50% == .5 Transparenz nur im offenen Zustand */
+}
+
+/* Fallback – falls statt aria das Wrapper-Flag genutzt wird              */
+#rival-gk-stat-wrapper:not(.is-collapsed) .rival-acc-handle {
+    opacity: .2;
+}
+
+/* Zugeklappt: Tabelle ausblenden, aber Handle sichtbar halten */
+#rival-gk-stat-wrapper.is-collapsed {
+    min-height: 44px; /* damit das "Ohr" Platz hat */
+}
+
+#rival-gk-stat-wrapper.is-collapsed .gk-stat-table {
+    display: none; /* harte Ausblendung – kein Layoutsprung */
+}
+
+/* Optional: kleine visuelle Trennung vom restlichen Inhalt */
+#rival-gk-stat-wrapper {
+    /* Wenn Ihre Theme-Variablen existieren, können Sie sie nutzen:
+       border: 1px solid var(--border-color, #DDD);*/
+}
+
+/* Chevron (Pfeil) etwas größer für bessere Erkennbarkeit */
+#rival-gk-stat-wrapper .rival-acc-handle .chev {
+    line-height: 1;
+    transition: transform .18s ease;
+    font-size: 14px;
+}
+
+#rival-gk-stat-wrapper [aria-expanded="false"] .chev {
+    transform: rotate(-90deg);
+}
+
+/* Hover/Active: leichte Aufhellung, ohne Theme zu brechen */
+#rival-gk-stat-wrapper .rival-acc-handle:hover {
+    filter: brightness(1.08);
+}
+
+#rival-gk-stat-wrapper .rival-acc-handle:active {
+    transform: translateY(1px);
+}
+
+/* Tastaturfokus klar sichtbar (WCAG) */
+#rival-gk-stat-wrapper .rival-acc-handle:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 1px;
+}
+
+/* Im Zugeklappt-Zustand die Mindesthöhe ebenfalls halbieren */
+#rival-gk-stat-wrapper.is-collapsed {
+    min-height: 22px; /* vorher 44px */
+}
+
+/* Optional: Chevron minimal kleiner, damit es zentriert wirkt */
+#rival-gk-stat-wrapper .rival-acc-handle .chev {
+    font-size: 16px;
+}
+
+/* ----- kleine Quick-Buttons im Positions-Button ----- */
+.gk-overview-action-btn {
+    /* Das meiste kommt aus deinem bestehenden Stil; wir ergänzen nur Flex,
+       damit Label und Mini-Buttons hübsch stehen. */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.gk-overview-action-btn .rival-label {
+    /* Label neutral; kann leer bleiben, wenn dein Button-Stil es schon abdeckt */
+    line-height: 1;
+}
+
+.gk-overview-action-btn .rival-mini {
+    /* Optisch kleine runde Tasten */
+    display: inline-flex;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    border: 1px solid #0006;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    user-select: none;
+    cursor: pointer;
+    background: #fff; /* ggf. an dein Theme anpassen */
+}
+
+/* --- Mini-Badges in den Rival-Positionsbuttons --------------------
+   P (Parade) = GRÜN  → .rival-mini--neg
+   T (Tor)    = ROT   → .rival-mini--pos
+------------------------------------------------------------------ */
+.gk-overview-action-btn .rival-mini--neg {
+    color: #1b5e20; /* sattes Grün für P */
+}
+
+.gk-overview-action-btn .rival-mini--pos {
+    color: #c62828; /* kräftiges Rot für T */
+}
+
+/* + = Tor    */
+
+.gk-overview-action-btn.active-pos .rival-label {
+    /* Wenn Pos. ausgewählt - Label leicht hervorheben */
+    filter: brightness(1.2);
+}
+
+/* ———————————————————————————————————————————————————————————————
+   Rival-Panel: längeres deutsches Label sauber umbrechen/zentrieren
+   (wir scopen bewusst auf den GK-Overview-Container)
+   ——————————————————————————————————————————————————————————————— */
+.gk-overview-btn-container .timer-label {
+    white-space: normal;
+    line-height: 1.15;
+    text-align: center;
+    font-weight: 700;
+    /* responsiv skalieren (ohne globale Größen zu ändern) */
+    font-size: clamp(.75rem, 1.6vw, .9rem);
+}
+
+/* minimale Breite der Karte, damit die zwei Zeilen luftig wirken */
+.gk-overview-btn-container .timer {
+    min-width: 168px;
+}
+
+/* Elterncontainer des Canvas sollte relativ sein,
+   damit die absolute Positionierung sauber funktioniert */
+#court-canvas {
+    display: block;
+}
+
+#court-canvas.parent, .canvas-wrapper {
+    position: relative;
+}
+
+/* unser Overlay-Button */
+.sevenm-overlay-btn {
+    padding: 2px 6px;
+    font-size: 12px;
+    line-height: 1.2;
+    border-radius: 8px;
+    opacity: 0.95;
+}
+
+.sevenm-overlay-btn:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* --- Stack sauber definieren -------------------------------------- */
+.canvas-container {
+    position: relative;
+}
+
+/* Das Hintergrundbild darf keine Klicks abfangen. */
+#background-image {
+    pointer-events: none;
+}
+
+/* falls vorhanden und rein dekorativ, Overlay durchklickbar machen. */
+#canvas-overlay {
+    pointer-events: none;
+}
+
+/* 7m-Overlay-Button muss über allen Canvas/Overlays liegen. */
+.sevenm-overlay-btn {
+    position: absolute; /* bleibt wie bisher */
+    z-index: 2147483647; /* praktisch "oberste" Ebene */
+    pointer-events: auto; /* sicherstellen, dass der Button klickbar bleibt */
+}
+
+/* 7m quick overlay is intentionally disabled for now */
+.sevenm-overlay-btn,
+#sevenm-quick-btn { display: none !important; }
+
+/* ===== Radialer Editor (W-Zelle) ==================================== */
+/* Root ist absolut positioniert und klickt "durch" nur, wenn offen */
+.shot-radial {
+    position: fixed;
+    left: 0; top: 0; /* wird per JS gesetzt */
+    transform: translate(-50%, -50%) scale(.85);
+    opacity: 0;
+    transition: transform .12s ease, opacity .12s ease;
+    z-index: 2147483647; /* über allem, auch Canvas */
+    pointer-events: none; /* geschlossen nicht interaktiv */
+}
+
+.shot-radial.is-open {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.shot-radial__core {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    background: #2b2b2b;
+    color: #fff;
+    font-weight: 700;
+    display: grid; place-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,.4);
+}
+
+.shot-radial__ring {
+    position: absolute;
+    left: 0; top: 0;
+}
+
+.shot-radial__opt {
+    position: absolute;
+    left: 0; top: 0;
+    transform: translate(0,0); /* wird dynamisch ergänzt */
+    width: 40px; height: 40px;
+    border-radius: 999px;
+    border: 1px solid #3a3a3a;
+    background: #fff;
+    color: #111;
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgba(0,0,0,.25);
+    cursor: pointer;
+
+    /* --- Zentrierung des Labels (neu) -------------------------------- */
+    display: inline-flex;        /* stabile Box für zentrierten Inhalt */
+    align-items: center;         /* vertikal mittig */
+    justify-content: center;     /* horizontal mittig */
+    text-align: center;          /* Fallback für Mehrzeiler */
+    line-height: 1;              /* verhindert Baseline-Shift */
+    padding: 0;                  /* keine Innenabstände, die verschieben könnten */
+}
+
+/*.shot-radial__opt:hover,
+.shot-radial__opt:focus {
+    outline: none;
+    border-color: #0aa84f; !* dezent grün *!
+    box-shadow: 0 4px 10px rgba(0,0,0,.35);
+}*/
+
+/* Hover + Tastaturfokus – mit deutlich sichtbarem Ring */
+.shot-radial__opt:hover,
+.shot-radial__opt:focus,
+.shot-radial__opt:focus-visible {
+    outline: none; /* Browser-Outline aus, wir liefern eigenen Fokus */
+    border-color: #0aa84f; /* innerer Rand bleibt grün */
+
+    /* --- kräftiger, mehrstufiger Effekt ---------------------------------
+       1) Tieferer Drop-Shadow
+       2) Scharfes grünes „Kant“-Ring (ohne Layout-Sprung)
+       3) Weiche grüne Aura für mehr Präsenz
+    --------------------------------------------------------------------- */
+    box-shadow:
+            0 8px 18px rgba(0,0,0,.50),  /* tiefere Schattenebene */
+            0 0 0 2px #0aa84f,           /* scharfer grüner Ring (≈ dickerer Rand) */
+            0 0 0 4px rgba(10,168,79,.22); /* sanfte grüne Aura außen */
+}
+
+/* W-Zellen-Button optisch neutral (übernimmt bestehendes Dark-Theme) */
+.shot-td--cat .shot-edit-btn {
+    padding: 2px 8px;
+    border-radius: 8px;
+    border: 1px solid #3a3a3a;
+    background: #1e1e1e;
+    color: inherit;
+    cursor: pointer;
+}
+
+.shot-td--cat .shot-edit-btn:hover {
+    border-color: #5a5a5a;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #rival-gk-stat-wrapper .rival-acc-handle {
+        transition: none !important;
+    }
+
+    #rival-gk-stat-wrapper .rival-acc-handle.hint {
+        animation: none !important;
+    }
+}
+
+/* Einmalige Mikro-Animation, um den Handle „entdeckbar“ zu machen */
+@keyframes rivalPulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, .35);
+    }
+    50% {
+        transform: scale(1.03);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, .45);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, .35);
+    }
+}
+
+#rival-gk-stat-wrapper .rival-acc-handle.hint {
+    animation: rivalPulse 1.2s ease-in-out 4; /* 4 Zyklen, nur beim ersten Besuch */
+}
+
+/* Optional: Dark/Light feinjustieren, falls Sie Theme-Variablen nutzen */
+html[data-theme="dark"] #rival-gk-stat-wrapper .rival-acc-handle {
+    background: var(--accent-bg, #0B7D3B);
+}
+
+/*  ==== 9. Dark-Mode ==================================================== */
+@media (prefers-color-scheme: dark) {
+
+    :root {
+        --text-dark: #ffffffd9;
+        --background-light: #121212;
+        --background-medium: #1e1e1e;
+        --accent-gray: #333333;
+        --shadow-color: rgba(0, 0, 0, .70);
+
+        --table-bg-even: #1a1a1a;
+        --table-bg-odd: #202020;
+        --table-font: #dedede;
+        --table-head-bg: #2a2a2a;
+        --table-head-font: #f0f0f0;
+
+        --shot-goal-bg: #5c0000;
+        --shot-save-bg: #005c2f;
+    }
+
+    .header {
+        background: var(--dark-green);
+    }
+}
+
+@media (max-width: 768px) {
+    .header-inner {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .club-col {
+        align-items: center;
+    }
+
+    .club-name {
+        margin-top: 0.25rem;
+    }
+
+    #information-container table {
+        max-width: 90vw;
+    }
+}
+
+/* ==== 9b. Force Light / Dark per data-theme ========================== */
+html[data-theme="dark"] {
+    --text-dark: #ffffffd9;
+    --background-light: #121212;
+    --background-medium: #1e1e1e;
+    --accent-gray: #333333;
+    --shadow-color: rgba(0, 0, 0, 0.7);
+    --table-bg-even: #1a1a1a;
+    --table-bg-odd: #202020;
+    --table-font: #dedede;
+    --shot-goal-bg: #5c0000;
+    --shot-save-bg: #005c2f;
+    --table-head-bg: #2a2a2a;
+    --table-head-font: #f0f0f0;
+    --accent-bg: #0B7D3B;
+}
+
+html[data-theme="light"] {
+    --text-dark: #333333;
+    --background-light: #f5f5f5;
+    --background-medium: #e0e0e0;
+    --accent-gray: #cccccc;
+    --shadow-color: rgba(0, 0, 0, 0.2);
+    --table-bg-even: #f1f1f1;
+    --table-bg-odd: #ffffff;
+    --table-font: #0a0a0a;
+    --shot-goal-bg: #800;
+    --shot-save-bg: #084;
+    --table-head-bg: #d0d0d0;
+    --table-head-font: #0a0a0a;
+    --accent-bg: #0A7C3E; /* konsistent zum Light-Theme */
+}
+
+#theme-slider {
+    accent-color: var(--primary-green);
+    cursor: pointer;
+}
+
+/* === LIGHT-THEME Tabellen-Kontrast-Patch ========================== */
+html[data-theme="light"] {
+
+    /* 1) Etwas dunklerer Hintergrund für Zebra-Streifen / Tabellenkopf */
+    --table-bg-even: #e8e8e8;
+    --table-bg-odd: #ffffff;
+    --table-head-bg: #cfcfcf;
+
+    /* 2) Sättigere „graue“ Linien / Texte */
+    --accent-gray: #b5b5b5; /* Rahmenfarbe */
+    --table-font: #222222; /* Textfarbe in Tabellenzellen */
+
+    /* 3) Etwas dunklere Akzentfarben */
+    --shot-goal-bg: #700;
+    --shot-save-bg: #063;
+}
+
+/* Sättigere Farben für Zahlen in Spezialzeilen */
+html[data-theme="light"] .shot-row--goal td {
+    color: #ff6d6d;
+}
+
+/* leuchtend rot */
+html[data-theme="light"] .shot-row--save td {
+    color: #2ecc71;
+}
+
+/* leuchtend grün */
+html[data-theme="light"] .gk-stat-table,
+html[data-theme="light"] .gk-stat-table td,
+html[data-theme="light"] .shot-table,
+html[data-theme="light"] .shot-table td {
+    border-color: #b5b5b5;
+}
+
+/* Optische Trennlinie an der definierten Spalte */
+.shot-table td.is-divider {
+    border-left: 2px solid #0002;
+    border-right: 2px solid #0002;
+    padding-left: 0;
+    padding-right: 0;
+    width: 4px; /* optional: schmale Spalte */
+}
+
+td.is-divider, th.is-divider {
+    border-left: 2px solid #0002;
+    border-right: 2px solid #0002;
+    padding-left: 0;
+    padding-right: 0;
+    width: 4px;
+}
+
+/* Ende src/css/styles.css */
